@@ -3,8 +3,10 @@
 #include <iostream>
 #include <GL/gl.h>
 #include <GL/glut.h>
+//#include <GL/glew.h>
 //#include "shaders.h"
 //#include "Transform.h"
+//#include <GL/glsl.h>
 #include <string>
 #include <sstream>
 #include "glm.h"
@@ -19,10 +21,10 @@ typedef glm::vec3 vec3 ;
 typedef glm::vec4 vec4 ; 
 
 int amount;
-int w=500,h=500;
+int w=1800,h=800;
 vec3 eye;
 vec3 up;
-const vec3 eyeinit(0.0,0.0,2.0); // Initial eye position, also for resets(0.0,0.0,5.0)
+const vec3 eyeinit(0.0,0.0,1.0); // Initial eye position, also for resets(0.0,0.0,5.0)
 const vec3 upinit(0.0,1.0,0.0); // Initial up position, also for resets(0.0,1.0,0.0);
 const int amountinit = 5; //Initial step amount for camera movement, also for resets
 
@@ -48,28 +50,6 @@ mat3 Transform::rotate(const float degrees, const vec3& axis) {
   // YOUR CODE FOR HW1 HERE
   mat3 rotate;
 
-  //float degrees1=degrees;
-  //vec3 x_axis(1,0,0);
-  //vec3 y_axis(0,1,0);
-  /*
-  if(axis==x_axis){
-  rotate_x[0][0]=1; rotate_x[0][1]=0; rotate_x[0][2]=0; 
-  rotate_x[1][0]=0; rotate_x[1][1]= cos(degrees1*pi/180); rotate_x[1][2]=-sin(degrees1*pi/180); 
-  rotate_x[2][0]=0; rotate_x[2][1]= sin(degrees1*pi/180); rotate_x[2][2]=cos(degrees1*pi/180); 
-
-  rotate_x= glm::transpose(rotate_x);
-  // You will change this return call
-  return rotate_x;
-  }
-  else if(axis==y_axis){
-  rotate_x[0][0]=cos(degrees1*pi/180); rotate_x[0][1]=0; rotate_x[0][2]=sin(degrees1*pi/180); 
-  rotate_x[1][0]=0; rotate_x[1][1]= 1; rotate_x[1][2]=0; 
-  rotate_x[2][0]=-sin(degrees1*pi/180); rotate_x[2][1]= 0; rotate_x[2][2]=cos(degrees1*pi/180); 
-
-  rotate_x= glm::transpose(rotate_x);
-  // You will change this return call
-  return rotate_x;
-  }*/
 
   mat3 I;
   I[0][0]=1; I[0][1]= 0; I[0][2]=0;  
@@ -209,13 +189,11 @@ Transform::~Transform()
 }
 
 
-//#include <FreeImage.h>
-//s#include "UCB/grader.h"
 
-
+GLuint vertexshader,fragmentshader,shaderprogram;
 // Constants to set up lighting on the teapot
-const GLfloat light_position[] = {0,5,10,1};    // Position of light 0
-const GLfloat light_position1[] = {0,5,-10,1};  // Position of light 1
+const GLfloat light_position[] = {0,5,5,1};    // Position of light 0
+const GLfloat light_position1[] = {0,5,-5,1};  // Position of light 1
 const GLfloat light_specular[] = {0.6,0.3,0,1};    // Specular of light 0
 const GLfloat light_specular1[] = {0,0.3,0.6,1};   // Specular of light 1
 const GLfloat one[] = {1,1,1,1};                 // Specular on teapot
@@ -224,10 +202,10 @@ const GLfloat small[] = {0.2,0.2,0.2,1};         // Ambient on teapot
 const GLfloat high[] = {100};                      // Shininess of teapot
 GLfloat light0[4],light1[4]; 
 
-GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat white_light[] = { 0.6, 0.3, 0, 1.0 };
 GLfloat red_diffuse_material[] = { 0.8, 0.2, 0.2, 1.0 }; // red matte
 GLfloat red_specular_material[] = { 0.8, 0.2, 0.2, 1.0 }; // red shine
-GLfloat shininess[] = { 50.0 };
+GLfloat shininess[] = { 150.0 };
 // Variables to set uniform params for lighting fragment shader 
 GLuint islight; 
 GLuint light0posn; 
@@ -265,11 +243,7 @@ std::string imgNumber(int num) {
 }
 
 void printHelp() {
-	std::cout << "\npress 'h' to print this message again.\n" 
-		//<< "press '+' or '-' to change the amount of rotation that\n"
-		//<< "occurs with each arrow press.\n" 
-		//<< "press 'i' to run image grader test cases\n"
-		//<< "press 'g' to switch between using glm::lookAt or your own LookAt.\n"     
+	std::cout << "\npress 'h' to print this message again.\n"   
 		<< "press 'r' to reset the transformation (eye and up).\n"
 		<< "press ESC to quit.\n";  
 
@@ -277,33 +251,6 @@ void printHelp() {
 
 void keyboard(unsigned char key,int x,int y) {
 	switch(key) {
-		//case '+':
-		//	amount++;
-		//	std::cout << "amount set to " << amount << "\n";
-		//	break;
-		//case '-':
-		//	amount--;
-		//	std::cout << "amount set to " << amount << "\n"; 
-		//	break;
-		/*case 'i':
-			if(useGlu) {
-				std::cout << "Please disable glm::LookAt by pressing 'g'"
-					   << " before running tests\n";
-			}
-			else if(!allowGrader) {
-				std::cout << "Error: no input file specified for grader\n";
-			} else {
-				std::cout << "Running tests...\n";
-				grader.runTests();
-				std::cout << "Done! [ESC to quit]\n";
-			}
-			break;
-		case 'g':
-			useGlu = !useGlu;
-			std::cout << "Using glm::LookAt set to: " 
-				<< (useGlu ? " true " : " false ") << "\n"; 
-			break;
-		*/	
 		case 'h':
 			printHelp();
 			break;
@@ -363,6 +310,7 @@ void init() {
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHTING);
 
+
 }
 
 void display() {
@@ -384,25 +332,31 @@ void display() {
 	// Lights are transformed by current modelview matrix. 
 	// The shader can't do this globally. 
 	// So we need to do so manually.  
-	transformvec(light_position,light0); 
-	transformvec(light_position1,light1); 
+	//transformvec(light_position,light0); 
+	//transformvec(light_position1,light1); 
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, white_light);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, white_light);
-	/*glUniform4fv(light0posn,1,light0); 
-	glUniform4fv(light0color,1,light_specular); 
-	glUniform4fv(light1posn,1,light1); 
-	glUniform4fv(light1color,1,light_specular1); 
-
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position1);
+	glLightfv(GL_LIGHT2, GL_DIFFUSE, white_light);
+	glLightfv(GL_LIGHT3, GL_SPECULAR, white_light);
+	//glUniform4fv(light0posn,1,light0); 
+	//glUniform4fv(light0color,1,light_specular); 
+	//glUniform4fv(light1posn,1,light1); 
+	//glUniform4fv(light1color,1,light_specular1); 
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, red_diffuse_material);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, red_specular_material);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 	//glUniform4fv(ambient,1,small); 
 	//glUniform4fv(diffuse,1,medium); 
-	glUniform4fv(ambient,1,small); 
-	glUniform4fv(diffuse,1,small); 
-	glUniform4fv(specular,1,one); 
-	glUniform1fv(shininess,1,high); 
-	glUniform1i(islight,true);
-	*/
+	//glUniform4fv(ambient,1,small); 
+	//glUniform4fv(diffuse,1,small); 
+	//glUniform4fv(specular,1,one); 
+	//glUniform1fv(shininess,1,high); 
+	//glUniform1i(islight,true);
+	
 	//glutSolidTeapot(3);
+	GLMmaterial *mat2;
 	if (!objmodel_ptr)
 	{
 	   objmodel_ptr = glmReadOBJ("dragon.obj");
@@ -416,7 +370,7 @@ void display() {
 	}
 	
 	glmDraw(objmodel_ptr, GLM_SMOOTH | GLM_MATERIAL);
-
+	//glmDraw(objmodel_ptr, GLM_SMOOTH | mat2);
 	glutSwapBuffers();
 }
 
@@ -434,16 +388,6 @@ int main(int argc,char* argv[]) {
 	glutReshapeFunc(reshape);
 	glutReshapeWindow(w,h);
 	
-	/*if(argc > 1) {
-		allowGrader = true;
-		grader.init(argv[1]);
-		grader.loadCommands(argv[1]);
-		grader.bindDisplayFunc(display);
-		grader.bindSpecialFunc(specialKey);
-		grader.bindKeyboardFunc(keyboard);
-		grader.bindScreenshotFunc(saveScreenshot);
-	}
-	*/
 	printHelp();
 	glutMainLoop();	
 	//FreeImage_DeInitialise();
